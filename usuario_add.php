@@ -1,4 +1,5 @@
 <?php
+include_once("conexaodb.php");
 // Escreve o conteúdo recebido pelo formulário na tela
 // var_dump $_GET;
 
@@ -30,4 +31,50 @@ switch ($id_perfil) {
 if (empty($nome_usuario)) {
     echo "Erro: O nome de usuário não pode estar vazio.";
     die("<a href='javascript:history.back()'>Voltar</a>");
+}
+
+if (empty($senha)) {
+    echo "Erro: A senha não pode estar vazia.";
+    die("<a href='javascript:history.back()'>Voltar</a>");
+}
+
+// Verifica se o nome do usuário informado existe no banco de dados
+try {
+    $stmt = $pdo->prepare("SELECT * FROM usuarios WHERE NomeUsuarios = :nome_usuario");
+    $stmt->bindParam(':nome_usuario', $nome_usuario);
+    $stmt->execute();
+    
+    if ($stmt->rowCount() > 0) {
+        // Já existe um usuário com este nome
+        echo "Erro: Nome de usuário já existe.<br>";
+        die("<a href='javascript:history.back()'>Voltar</a>");
+    }
+} catch (PDOException $e) {
+    echo "Erro ao acessar o banco de dados: " . $e->getMessage();
+    exit;
+}
+
+// Depois de todas as validações realizadas, criar o novo usuário no banco de dados.
+try {
+    $stmt = $pdo->prepare("INSERT INTO `usuarios`(`NomeUsuarios`, `Senha`, `idPerfil`) VALUES (:nome_usuario,:senha,:id_perfil)");
+    $stmt->bindParam(':nome_usuario', $nome_usuario);
+    $stmt->bindParam(':senha', md5($senha));
+    $stmt->bindParam(':id_perfil', $id_perfil);
+    $stmt->execute();
+
+    // Se o comando foi executado com sucesso, o número dee linhas adicionadas é maior do que zero.
+
+    if ($stmt->rowCount() > 0){
+        echo "O usuário '" . $nome_usuario . "' foi adicionado com sucesso ao banco de dados.<br>";
+        echo "Você será redirecionado automaticamente a página anterior após 5 segundos.<br>";
+        // Retorna a página anterior após 5 segundos usando o JavaScript.
+        echo "<script>
+        setTimeout(function() {
+            history.back();
+        }, 5000);
+        </script>";
+        echo "Caso você não seja redirecionado automaticamente, <a href='javascript:history.back()'>clique aqui</a>";
+    }
+} catch(PDOException $e) {
+    echo "Erro: "  . $e->getMessage();
 }
