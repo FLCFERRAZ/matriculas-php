@@ -2,7 +2,7 @@
 include_once("conexaodb.php");
 
 //var_dump($_GET);
-$nome_curso = $_GET['nome_curso'];
+$nome_curso = $_GET['NomeCurso'];
 echo "O nome do curso é: "  .  $nome_curso;
 
 if (empty($nome_curso)) {

@@ -4,11 +4,11 @@ include_once("conexaodb.php");
 // var_dump $_GET;
 
 $nome_usuario = $_GET["nome_usuario"];
-$senha = $_GET["senha"];
+$senha = md5($_GET["senha"]);
 $id_perfil = $_GET["id_perfil"];
 
 echo "O nome de usuário é: " . $nome_usuario . "<br>";
-echo "A senha é: " . $senha . "<br>";
+echo "A senha criptografada é: " . $senha . "<br>";
 echo "O perfil é: ";
 // Valida se o perfil é válido
 switch ($id_perfil) {
@@ -58,7 +58,7 @@ try {
 try {
     $stmt = $pdo->prepare("INSERT INTO `usuarios`(`NomeUsuarios`, `Senha`, `idPerfil`) VALUES (:nome_usuario,:senha,:id_perfil)");
     $stmt->bindParam(':nome_usuario', $nome_usuario);
-    $stmt->bindParam(':senha', md5($senha));
+    $stmt->bindParam(':senha', $senha);
     $stmt->bindParam(':id_perfil', $id_perfil);
     $stmt->execute();
 
